@@ -1,0 +1,87 @@
+# Configuração do Prometheus para Micronaut Learning Project
+# Coleta métricas da aplicação Micronaut e serviços de infraestrutura
+
+global:
+  scrape_interval: 15s # Intervalo padrão de coleta
+  evaluation_interval: 15s # Intervalo de avaliação de regras
+  external_labels:
+    monitor: 'micronaut-learning-monitor'
+    environment: 'development'
+
+# Configuração de regras de alerta (opcional)
+rule_files:
+  # - "alert_rules.yml"
+
+# Configuração do Alertmanager (opcional)
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets:
+#           - alertmanager:9093
+
+# Configuração de targets para coleta de métricas
+scrape_configs:
+  # Métricas do próprio Prometheus
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Métricas da aplicação Micronaut
+  - job_name: 'micronaut-app'
+    static_configs:
+      - targets: ['host.docker.internal:8080'] # Para macOS/Windows
+        # Para Linux, usar: ['172.17.0.1:8080'] ou o IP do host
+    scrape_interval: 10s
+    metrics_path: /prometheus
+    scrape_timeout: 5s
+    honor_labels: true
+    params:
+      format: ['prometheus']
+
+  # Métricas do Kafka via JMX
+  - job_name: 'kafka'
+    static_configs:
+      - targets: ['kafka:9101']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Métricas do MongoDB (se exportador estiver configurado)
+  - job_name: 'mongodb'
+    static_configs:
+      - targets: ['mongodb-exporter:9216']
+    scrape_interval: 30s
+    metrics_path: /metrics
+    # Desabilitado por padrão - requer mongodb_exporter adicional
+
+  # Métricas do Jaeger
+  - job_name: 'jaeger'
+    static_configs:
+      - targets: ['jaeger:14269']
+    scrape_interval: 30s
+    metrics_path: /metrics
+
+  # Métricas do Redis (se exportador estiver configurado)
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+    scrape_interval: 30s
+    metrics_path: /metrics
+    # Desabilitado por padrão - requer redis_exporter adicional
+
+  # Métricas do sistema (Node Exporter) - opcional
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+    scrape_interval: 30s
+    metrics_path: /metrics
+    # Desabilitado por padrão - requer node_exporter adicional
+
+# Configurações específicas para desenvolvimento
+# Em produção, ajustar conforme necessário
+storage:
+  tsdb:
+    retention.time: 15d # Manter dados por 15 dias
+    retention.size: 10GB # Máximo 10GB de dados
+

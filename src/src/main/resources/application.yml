@@ -1,0 +1,93 @@
+micronaut:
+  application:
+    name: micronaut-learning-project
+  server:
+    port: 8080
+  
+  # MongoDB Configuration
+  mongodb:
+    uri: mongodb://localhost:27017/learning_db
+    
+  # Kafka Configuration
+  kafka:
+    bootstrap:
+      servers: localhost:9092
+    producers:
+      default:
+        key-serializer: org.apache.kafka.common.serialization.StringSerializer
+        value-serializer: io.confluent.kafka.serializers.protobuf.KafkaProtobufSerializer
+        schema-registry-url: http://localhost:8081
+    consumers:
+      default:
+        key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        value-deserializer: io.confluent.kafka.serializers.protobuf.KafkaProtobufDeserializer
+        schema-registry-url: http://localhost:8081
+        group-id: learning-group
+        auto-offset-reset: earliest
+        
+  # gRPC Configuration
+  grpc:
+    server:
+      port: 9090
+    client:
+      plaintext: true
+      
+  # Circuit Breaker Configuration
+  retry:
+    enabled: true
+    
+  # Health Check Configuration
+  health:
+    enabled: true
+    
+  # Metrics Configuration
+  metrics:
+    enabled: true
+    export:
+      prometheus:
+        enabled: true
+        step: PT1M
+        descriptions: true
+
+# OpenTelemetry Configuration
+tracing:
+  jaeger:
+    enabled: true
+    sampler:
+      probability: 1.0
+    sender:
+      endpoint: http://localhost:14268/api/traces
+    reporter:
+      log-spans: true
+
+# Logging Configuration
+logger:
+  levels:
+    com.learning.micronaut: DEBUG
+    io.micronaut: INFO
+    root: INFO
+
+# Circuit Breaker Configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      external-service:
+        register-health-indicator: true
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 5s
+        failure-rate-threshold: 50
+        event-consumer-buffer-size: 10
+
+# Custom Application Properties
+app:
+  kafka:
+    topics:
+      user-events: user-events
+      notifications: notifications
+  external:
+    service:
+      url: http://localhost:8081/api
+

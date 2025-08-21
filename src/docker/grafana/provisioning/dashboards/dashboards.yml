@@ -1,0 +1,16 @@
+# Configuração automática de dashboards no Grafana
+# Este arquivo define onde encontrar os dashboards para carregamento automático
+
+apiVersion: 1
+
+providers:
+  - name: 'Micronaut Learning Dashboards'
+    orgId: 1
+    folder: 'Micronaut Learning'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards
+

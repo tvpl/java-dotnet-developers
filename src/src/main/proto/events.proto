@@ -1,0 +1,114 @@
+syntax = "proto3";
+
+package com.learning.micronaut.proto;
+
+option java_package = "com.learning.micronaut.proto";
+option java_outer_classname = "EventsProto";
+option java_multiple_files = true;
+
+import "google/protobuf/timestamp.proto";
+import "user.proto";
+
+// Evento base para todos os eventos do sistema
+// Demonstra como usar Protobuf para eventos em arquitetura orientada a eventos
+message BaseEvent {
+  string event_id = 1;
+  string event_type = 2;
+  string source = 3;
+  google.protobuf.Timestamp timestamp = 4;
+  string correlation_id = 5;
+  map<string, string> metadata = 6;
+}
+
+// Evento de criação de usuário
+message UserCreatedEvent {
+  BaseEvent base = 1;
+  User user = 2;
+  string created_by = 3;
+}
+
+// Evento de atualização de usuário
+message UserUpdatedEvent {
+  BaseEvent base = 1;
+  User user = 2;
+  User previous_user = 3;
+  string updated_by = 4;
+  repeated string changed_fields = 5;
+}
+
+// Evento de exclusão de usuário
+message UserDeletedEvent {
+  BaseEvent base = 1;
+  string user_id = 2;
+  string deleted_by = 3;
+  string reason = 4;
+}
+
+// Evento de notificação
+message NotificationEvent {
+  BaseEvent base = 1;
+  string recipient_id = 2;
+  NotificationType type = 3;
+  string title = 4;
+  string message = 5;
+  map<string, string> data = 6;
+  NotificationPriority priority = 7;
+}
+
+// Tipos de notificação
+enum NotificationType {
+  UNKNOWN_TYPE = 0;
+  EMAIL = 1;
+  SMS = 2;
+  PUSH = 3;
+  IN_APP = 4;
+}
+
+// Prioridade da notificação
+enum NotificationPriority {
+  UNKNOWN_PRIORITY = 0;
+  LOW = 1;
+  MEDIUM = 2;
+  HIGH = 3;
+  URGENT = 4;
+}
+
+// Evento de auditoria para rastreamento
+message AuditEvent {
+  BaseEvent base = 1;
+  string user_id = 2;
+  string action = 3;
+  string resource = 4;
+  string resource_id = 5;
+  AuditResult result = 6;
+  string details = 7;
+  string ip_address = 8;
+  string user_agent = 9;
+}
+
+// Resultado da auditoria
+enum AuditResult {
+  UNKNOWN_RESULT = 0;
+  SUCCESS = 1;
+  FAILURE = 2;
+  PARTIAL = 3;
+}
+
+// Evento de métricas para observabilidade
+message MetricsEvent {
+  BaseEvent base = 1;
+  string metric_name = 2;
+  double value = 3;
+  map<string, string> tags = 4;
+  MetricType type = 5;
+}
+
+// Tipos de métricas
+enum MetricType {
+  UNKNOWN_METRIC = 0;
+  COUNTER = 1;
+  GAUGE = 2;
+  HISTOGRAM = 3;
+  TIMER = 4;
+}
+
